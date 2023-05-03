@@ -1,0 +1,103 @@
+% ==================================================
+% ==================================================
+\chapter{Datasets}
+\label{dataset}
+For the thesis, a spiking model of a cat's primary visual cortex was used to generate the datasets~\citep{antolik2018comprehensive}. We used two main datasets, one smaller for initial experiments and one larger to fine-tune the CNN models. In general, we used zero mean, standard deviation one for normalization of cortical activity neurons and we divided the stimuli by $255$ to have all images in the range of $[0;1]$.
+
+
+% ==================================================
+\section{Ten-trials Dataset}
+\label{dataset:ten-trials}
+The use of a smaller dataset consisting of 10 image presentations per each image has its own advantages, despite having a smaller size. One of the intrinsic properties of neural responses is the presence of noise. By averaging the cortical activity across these 10 trials, the noise level can be reduced to some extent. Instead of averaging the results, we allowed the models to decide how to incorporate the noise into the learning process. We used this smaller dataset as a starting point to develop our generator models, but we found that it was insufficient to achieve satisfactory levels of accuracy. Therefore, we switched to using the larger dataset consisting of single-trial cortical activity responses (refer to dataset~\ref{dataset:one-trial}) to train the same models and do the rest of the experiments.
+
+
+% **************************************************
+\subsection{Preparation}
+\label{dataset:ten-trials:preparation}
+This dataset was obtained using a computational model of a cat's striate cortex, which was developed by Antolík and his colleagues~\citep{antolik2018comprehensive}. This in-silico model of cat's V1 is composed of a total of 60000 neurons, all of which are modeled as exponential integrate-and-fire point neurons~\citep{brette2005adaptive}. The neurons which are divided into layer 4 (L4), containing 30000 neurons, and layer 2/3 (L2/3), containing 30000 neurons. Moreover, the cortical neurons are divided into groups of excitatory and inhibitory neurons. The excitatory group of L4 contains 24000 neurons, the same holds for the excitatory group of L2/3. Both inhibitory groups of L4 and L2/3 contain 6000 neurons, therefore all four groups sum to 60000 neurons in total. Each neuron population presents particular inter-layer and intra-layer connectivity rules and specific physiological parameters in line with literature. In general, the model's design is heavily influenced by experimental findings and data measurements to ensure that the simulated spontaneous and visually evoked activity closely mimics the behavior of a real cat's V1.
+Since this dataset was generated using a computational model, there are no limitations in terms of the number of trials that can be performed. The responses of 60000 neurons from layers L2/3 and L4 are included in the pairs of visual stimuli and neural population responses, which comprise resized and cropped grayscale images from ImageNet~\citep{russakovsky2015imagenet} with a resolution of 110x110 px. The responses are calculated by adding up the number of spikes that occur during a 560 ms time window aligned with the presentation of the stimulus. In this dataset, every image was presented to the model ten times.
+Although each visual stimulus spans 11 degrees of the visual field, the cortical neurons are distributed only within a region of the cortex that corresponds to the 4 central degrees of the visual area covered by the stimuli. This decision was made to prevent boundary effects and allow for the complete receptive field of the cortical neurons to be accounted for. 
+
+
+% **************************************************
+\subsection{Description}
+\label{dataset:ten-trials:description}
+
+This dataset contains 5000 images in total. It contains each unique stimuli image ten times with different cortical activity encoding vector. For this reason, we split this dataset into training, validation, and testing part so that identical stimuli are always only inside one data part.
+The samples consist of pairs of stimulus image, which has a shape of 110x110 pixels, and cortical activity neuron values, which are encoded as a vector with 60000 values.
+
+The dataset was split with the rule 70:10:20 to produce the following number of samples in each part:
+
+
+% --------------------------------------------------
+\subsubsection{Training set}
+\begin{itemize}
+\item 3500 samples
+\item Responses description: min $-0.813$, max $14.156$, mean $0$, std $1$
+\item Stimuli description: min $0$, max $0.392$, mean $0.177$, std $0.104$
+\end{itemize}
+
+
+% --------------------------------------------------
+\subsubsection{Validation set}
+\begin{itemize}
+\item 500 samples
+\item Responses description: min $-0.813$, max $14.482$, mean $0.021$, std $1.027$
+\item Stimuli description: min $0$, max $0.392$, mean $0.182$, std $0.107$
+\end{itemize}
+
+
+% --------------------------------------------------
+\subsubsection{Testing set}
+\begin{itemize}
+\item 1000 samples
+\item Responses description: min $-0.813$, max $12.731$, mean $0.002$, std $1.005$
+\item Stimuli description: min $0$, max $0.392$, mean $0.182$, std $0.103$
+\end{itemize}
+
+
+
+% ==================================================
+\section{One-trial Dataset}
+\label{dataset:one-trial}
+This is a much larger dataset, which was therefore more suitable to be used to develop and tune the CNN models.
+
+
+% **************************************************
+\subsection{Preparation}
+\label{dataset:one-trial:preparation}
+The dataset was prepared the same way as the one-trial dataset~\ref{dataset:ten-trials:preparation} except that each image was presented to the model only once, not ten times as in the previous dataset.
+
+
+% **************************************************
+\subsection{Description}
+\label{dataset:one-trial:description}
+
+The one-trial dataset contains unique stimuli images, therefore it could be simply split with the same 70:10:20 rule similar to the ten-trials dataset. In total, it contains 47250 samples.
+The samples consist of pairs of stimulus image, which has a shape of 110x110 pixels, and cortical activity neuron values, which are encoded as a vector with 60000 values.
+
+A detailed description of each part follows:
+
+% --------------------------------------------------
+\subsubsection{Training set}
+\begin{itemize}
+\item 33075 samples
+\item Responses description: min $-1.045$, max $70.669$, mean $0$, std $1$
+\item Stimuli description: min $0$, max $0.392$, mean $0.177$, std $0.106$
+\end{itemize}
+
+% --------------------------------------------------
+\subsubsection{Validation set}
+\begin{itemize}
+\item 4725 samples
+\item Responses description: min $-1.045$, max $31.697$, mean $0.001$, std $0.998$
+\item Stimuli description: min $0$, max $0.392$, mean $0.178$, std $0.106$
+\end{itemize}
+
+% --------------------------------------------------
+\subsubsection{Testing set}
+\begin{itemize}
+\item 9450 samples
+\item Responses description: min $-1.045$, max $59.737$, mean $0.001$, std $1$
+\item Stimuli description: min $0$, max $0.392$, mean $0.177$, std $0.107$
+\end{itemize}

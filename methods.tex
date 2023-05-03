@@ -1,0 +1,29 @@
+% ==================================================
+% ==================================================
+\chapter{Methods}
+\label{methods}
+This chapter describes the methods used in our experiments. In section~\ref{methods:models}, we start by defining the problem~\ref{methods:models:problem-definition}, then we present one simple approach to decode images using linear regression and four more advanced ones which use neural networks, some of which are inspired by~\citep{zhang2020reconstruction}. We use the model from this paper, along with the linear regression, as a baseline comparison.
+
+In the following section~\ref{methods:losses}, we present several loss functions that we use for training and testing the model performance. We use simple ones like $L_1$ ~\ref{methods:losses:L1} or MSE ~\ref{methods:losses:MSE}, as well as a more complex one implemented through the use of another neural network ~\ref{methods:losses:adversarial}.
+
+The details about the software and packages we used are in the last section~\ref{methods:implementation-details}.
+
+The experiments using these models and these losses are described in the subsequent chapter~\ref{experiments}.
+
+\input{methods-models}
+
+\input{methods-losses}
+
+
+
+% ==================================================
+\section{Implementation Details}
+\label{methods:implementation-details}
+To implement the methods, we used several Python libraries, which are available for both training the models and image augmentation or loss computation.
+
+The linear regression models were trained using Python library scikit-learn\footnote{\url{https://scikit-learn.org}}, specifically using the class LinearRegression\footnote{\url{https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html}}.
+
+We implemented and trained the CNN models in the PyTorch\footnote{\url{https://pytorch.org}} framework. The settings for the training were selected as $0.0002$ for the learning rate, batch size of $64$, and the optimization was done using Adam optimizer~\citep{kingma2014adam}\footnote{PyTorch implementation is documented at \url{https://pytorch.org/docs/stable/generated/torch.optim.Adam.html}.} The number of epochs was $15$ (the best model was usually found after training the third epoch) and we used a cosine decay scheduler~\citep{loshchilov2016sgdr}, which starts at the given learning rate and follows the cosine function until it reaches zero learning rate.
+
+For the computation of the loss functions, we used L1Loss and MSELoss implemented by PyTorch\footnote{\url{https://pytorch.org/docs/stable/generated/torch.nn.L1Loss.html} and \url{https://pytorch.org/docs/stable/generated/torch.nn.MSELoss.html}} and SSIMLoss and MS\_SSIMLoss implementations by popular Kornia\footnote{Kornia library is available at \url{https://kornia.github.io}.} library\footnote{\url{https://kornia.readthedocs.io/en/latest/_modules/kornia/losses/ssim.html} and \url{https://kornia.readthedocs.io/en/latest/_modules/kornia/losses/ms_ssim.html}}. All the other loss functions are either implemented in PyTorch or are combinations of these loss functions. The big advantage of these functions is that all of them can be run on GPU, which provides a speedup for their computation.
+Note that the losses used for evaluation are computed only for the central 64x64 pixel area, as the reconstruction on the boundaries was not possible by any model we tried. The training loss was always computed for the whole image.

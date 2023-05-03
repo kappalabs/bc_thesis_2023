@@ -1,0 +1,66 @@
+% ==================================================
+% ==================================================
+\chapter{Conclusion}
+\label{conclusion}
+This chapter presents an analysis of the performance of various machine learning models on two different datasets, one smaller with multiple trials to capture the noisiness in the neural activity and a bigger one with one trial. We also present the impact of different factors on the model performance. Specifically, we compare the performance of a linear regression model as a baseline model and four convolutional neural network models on the ten-trials and one-trial datasets. We investigate the effects of the size of the dataset, the number of input cortical neurons, and the choice of loss function on the decoding performance of the models. In addition, we evaluate the influence of various image perturbations on the loss functions.
+
+\subsubsection{Ten-trials Dataset}
+% ten-trials dataset
+% \begin{itemize}
+%     \item best model is LR by $L_1$ ($0.07302$)
+%     \item results are not very visually similar to the target stimuli
+%     \item size of the dataset plays a big role in the decoding performance
+%     \item \todo{intristic noise does have an impact}
+% \end{itemize}
+
+Our experiments on the ten-trials dataset have revealed that the best model of all the baseline and proposed models is the LR, when we compare the models by $L_1$ ($0.073$). However, the results are not very visually similar to the target stimuli, and the size of the dataset plays a significant role in the decoding performance. Additionally, we have observed that intrinsic noise has an impact on the decoding performance, but at the same time, we observed that the size of the dataset and also the number of used neural responses have a greater effect on the metrics. To conclude, if we are provided with multiple trials, we suggest using the neural response averaging method.
+
+
+\subsubsection{One-trial dataset}
+% \begin{itemize}
+%     \item best model is CNNv3 by $L_1$ ($0.06655$), LR does not work well ($L_1 = 0.09481$) which we interpret as the linearity dependence assumption is wrong here
+%     \item results are visually better than ten-trials dataset and generated images are more similar to the target stimuli
+%     \item intermediate images in CNNv3 are similar to the output image but noisy, for CNNv4, the intermediate image does not seem to depict anything similar to the output
+%     \item best training loss is MSSSIM, does not matter which metrics we use to evaluate the results; discriminator loss produces subjectively good results but not by the loss metrics
+%     \item size of the dataset plays a big role in decoding performance, more data results in better loss value
+%     \item using more neurons results in better loss value
+%     \item L4 neurons are the most important, specifically L4 Inhibitory neurons, there are only 6000 of them, but 60000 of all the neurons, both produce models with similar results ($L_1=0.06609$ for 6000 and $L_1=0.06655$ for the 60000 neurons); by using 10x fewer neurons, we have same results but the number of parameters of the models is much smaller
+% \end{itemize}
+
+% What is the best decoding approach in terms of choice of architecture, loss function, and data preprocessing to reconstruct stimuli from the neural activity?
+% • Are coarser spatial maps of neural activity sufficient to achieve satisfying reconstruction performances?
+% • Is there a progressive loss of information in the spatial high frequencies domain along the visual hierarchy of the in-silico model?
+% • How does the number of neurons recorded or the number of stimuli presented affect results?
+% • Does the intrinsic noise in neural responses represent a substantial limitation to reconstructing visual stimuli?
+
+We found that the best-performing model for this dataset is not the baseline LR as for the ten-trials dataset (with the $L_1 = 0.095$) nor the CNNv4 (which was another baseline architecture described in~\citep{zhang2020reconstruction}), but our proposed model CNNv3 (with the $L_1=0.066$). This suggests that the non-linearity introduced by CNN networks is important for the reconstruction.
+The decoded images of the one-trial dataset have lower loss values, they are visually better than those of the ten-trials dataset and the generated images are more similar to the target stimuli. We suggest using simple normalization by dividing the stimuli images by $255$ to have them in the range $[0;1]$, which is the natural range of the popular sigmoid activation function.
+Intermediate images in the CNNv3 model are similar to the output image but noisy, while in the baseline CNNv4 model, the intermediate image does not seem to depict anything similar to the output.
+We achieved the best results (by all four main loss functions) when we used the MSSSIM loss function for the training of the models. We also found that using different metrics to evaluate the results does not affect the overall outcome and that MSSSIM is the best loss for training. The discriminator loss produces subjectively good results but not by the loss metrics, which suggests that image features important for human visual perception are not well captured by popular loss metrics, and defining a good loss function for measuring the similarity is therefore not an easy problem.
+The size of the dataset is a significant factor in decoding performance, as more data results in a lower loss value. The same holds for the number of neurons, as using more neurons results in better loss values.
+The neurons from layer L4 are the most important, especially inhibitory neurons from the L4 layer, which comprise only 6000 of the total 60000 neurons. We found that using this subset of neurons results in the same performance, while the number of parameters of the models can be much smaller, as the number of inputs gets $10\times$ smaller. One of the possible explanations is that this is caused by higher firing rates of inhibitory neurons (described in~\citep{antolik2018comprehensive}), which could carry more information and be less impacted by trial-to-trial noise. They might be just easier to decode, than the other ones. We also show, that using only neurons from layer L2/3, which follows the L4 layer in V1 results in poor performance. This could be due to the fact, that most L2/3 neurons are locally invariant to translation~\citep{Wilmes_2019}. This could make resolving the exact position of image features difficult.
+
+
+\subsubsection{Loss Functions}
+% \begin{itemize}
+%     \item MSSSIM penalizes blurred images least of all selected perturbations
+% \end{itemize}
+
+Regarding the loss functions used in this study, we conclude, that among the selected perturbations, which include adding blur, noise, intensity shift, or translation to the images, the MSSSIM loss function penalizes blurred images the least.
+There might be several reasons why the high frequencies in the stimuli images are hard to decode, choosing the loss function is one of them, but there might be also problems connected to the fact, that we average the responses over $560$ms window (\ref{dataset:ten-trials:preparation}) for each neuron, which might introduce blur. We also observed the influence of averaging over multiple trials, which may suggest that we need more repetitions to reconstruct the high frequencies.
+
+
+
+% ==================================================
+\section*{Future Work}
+\addcontentsline{toc}{section}{Future Work}
+We believe that it would be beneficial to conduct further research and investigation on these concepts and to integrate them into future developments of this thesis or any other relevant projects:
+
+\begin{itemize}
+\item Use one of the latest super-resolution CNN networks (for example ESRGAN~\citep{wang2018esrgan}) to generate more details in high-frequencies. The disadvantage of such an approach can be that the super-resolution network can generate objects, which were not originally present on the image.
+
+\item Use a larger training dataset, as the results suggest this might help to reconstruct the images better.
+
+\item We found that inhibitory neurons from the L4 layer are the most important, and also that more neurons help with the decoding. We therefore propose to use as many inhibitory neurons from this layer as possible. As the ratio of excitatory vs inhibitory neurons is 4:1~\citep{Li_2018}, this would mean working with a spiking model, which has a higher total number of neurons in the spiking model.
+
+\end{itemize}
